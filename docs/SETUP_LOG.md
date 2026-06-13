@@ -145,3 +145,10 @@ source ~/aagv_ws/install/setup.bash
 ---
 
 *This log is a manual record of setup steps for reproducibility and progress review.*
+
+## Update 2026-06-14 — Simulation sandbox validated
+- [x] Gazebo (`open_manipulator_x_gazebo`) + MoveIt 2 (`open_manipulator_x_moveit`) bring-up
+- [x] Plan & Execute SUCCEEDED — full chain MoveIt 2 -> arm_controller -> Gazebo
+- Gotcha: MoveIt launch needs `use_sim:=true` (NOT `use_sim_time`) to sync clock with Gazebo.
+  Without it, planning works but execution always CONTROL_FAILED (wall-clock vs sim-time mismatch).
+- Order: launch Gazebo first (publishes /robot_description + /clock), then MoveIt.
