@@ -1,0 +1,41 @@
+# --- ROS 2 / colcon workspace ---
+build/
+install/
+log/
+# colcon test/coverage artifacts
+.coverage
+coverage.xml
+*.gcov
+
+# --- ROS bag files (large; usually not committed) ---
+*.bag
+*.db3
+*.mcap
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+*.pyc
+
+# --- C/C++ build artifacts ---
+*.o
+*.so
+*.a
+*.out
+
+# --- Editors / IDE ---
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# --- Credentials / secrets (NEVER commit) ---
+*.pem
+*.key
+.env
+*token*
