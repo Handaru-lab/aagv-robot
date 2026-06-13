@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot name="aagv" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- ===== tunable params ===== -->
+  <xacro:property name="arm_mount_z" value="0.25"/>   <!-- arm height above AGV base -->
+  <!-- camera pose on link5 (eye-in-hand). TUNE to match the real bracket. -->
+  <xacro:property name="cam_xyz" value="0.072 0.0 0.04"/>
+  <xacro:property name="cam_rpy" value="0.0 0.0 0.0"/>
+
+  <!-- ===== AGV base (placeholder box) ===== -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <geometry><box size="0.6 0.4 0.2"/></geometry>
+      <material name="agv_gray"><color rgba="0.3 0.3 0.3 1.0"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <geometry><box size="0.6 0.4 0.2"/></geometry>
+    </collision>
+  </link>
+
+  <!-- ===== arm: include macro only, mount link1 on the AGV ===== -->
+  <xacro:include filename="$(find open_manipulator_description)/urdf/open_manipulator_x/open_manipulator_x_arm.urdf.xacro"/>
+  <joint name="arm_mount_joint" type="fixed">
+    <origin xyz="0 0 ${arm_mount_z}" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="link1"/>
+  </joint>
+  <xacro:open_manipulator_x prefix=""/>
+
+  <!-- ===== RealSense D435i, eye-in-hand on link5 ===== -->
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
+  <xacro:sensor_d435i parent="link5" name="camera" use_nominal_extrinsics="true">
+    <origin xyz="${cam_xyz}" rpy="${cam_rpy}"/>
+  </xacro:sensor_d435i>
+
+</robot>

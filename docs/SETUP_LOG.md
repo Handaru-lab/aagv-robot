@@ -161,3 +161,9 @@ source ~/aagv_ws/install/setup.bash
 - NOTE: U2D2 FTDI latency tweak (16ms->1ms) does NOT apply to OpenCR (ttyACM/CDC).
 - Pre-torque: set arm to recommended startup pose; joints must be within operable range.
 - Have physical e-stop reachable for first hardware test.
+
+## Update 2026-06-14 — aagv_description (subsystem #1) done
+- [x] Package aagv_description: OpenManipulator-X (arm macro) + AGV base_link root + D435i eye-in-hand on link5.
+- Camera mount (link5 frame): cam_xyz="0.072 0.0 0.04", cam_rpy="0 0 0". Lens (+X) faces grasp direction.
+- Verified in RViz: camera frames follow link5 when joints jog → eye-in-hand TF chain correct.
+- Note: mount value is nominal for sim; real value comes from hand-eye calibration on hardware.
