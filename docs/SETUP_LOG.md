@@ -152,3 +152,12 @@ source ~/aagv_ws/install/setup.bash
 - Gotcha: MoveIt launch needs `use_sim:=true` (NOT `use_sim_time`) to sync clock with Gazebo.
   Without it, planning works but execution always CONTROL_FAILED (wall-clock vs sim-time mismatch).
 - Order: launch Gazebo first (publishes /robot_description + /clock), then MoveIt.
+
+## Hardware notes — OpenCR 1.0 (pending: unit not on hand)
+- Controller board: **OpenCR 1.0** (NOT U2D2). Appears as `/dev/ttyACM0` (USB CDC).
+- Bring-up: `ros2 launch open_manipulator_bringup open_manipulator_x.launch.py port_name:=/dev/ttyACM0`
+- OpenCR requires firmware flashed (Arduino IDE + OpenCR board package) — verify correct firmware vs current Jazzy stack when unit is available.
+- Permissions: `sudo usermod -aG dialout $USER` then re-login.
+- NOTE: U2D2 FTDI latency tweak (16ms->1ms) does NOT apply to OpenCR (ttyACM/CDC).
+- Pre-torque: set arm to recommended startup pose; joints must be within operable range.
+- Have physical e-stop reachable for first hardware test.
