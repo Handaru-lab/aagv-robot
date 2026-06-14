@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -15,7 +15,6 @@ def generate_launch_description():
     bridge_config = PathJoinSubstitution([pkg, 'config', 'gz_bridge.yaml'])
     world = PathJoinSubstitution([pkg, 'worlds', 'empty_sensors.sdf'])
 
-    # Let Gazebo resolve model:// mesh URIs by pointing at the package share parents.
     share_parents = []
     for p in ('open_manipulator_description', 'realsense2_description', 'aagv_description'):
         try:
@@ -25,13 +24,10 @@ def generate_launch_description():
     gz_resource = os.pathsep.join(share_parents)
     if os.environ.get('GZ_SIM_RESOURCE_PATH'):
         gz_resource = gz_resource + os.pathsep + os.environ['GZ_SIM_RESOURCE_PATH']
-
     set_resource = SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', gz_resource)
 
     robot_description = {
-        'robot_description': ParameterValue(
-            Command(['xacro ', xacro_file]), value_type=str
-        )
+        'robot_description': ParameterValue(Command(['xacro ', xacro_file]), value_type=str)
     }
 
     ros_gz_sim = FindPackageShare('ros_gz_sim')
@@ -43,18 +39,27 @@ def generate_launch_description():
 
     rsp = Node(
         package='robot_state_publisher', executable='robot_state_publisher',
-        output='screen',
-        parameters=[robot_description, {'use_sim_time': True}],
+        output='screen', parameters=[robot_description, {'use_sim_time': True}],
     )
-
     spawn = Node(
         package='ros_gz_sim', executable='create', output='screen',
         arguments=['-topic', 'robot_description', '-name', 'aagv', '-z', '0.0'],
     )
-
     bridge = Node(
         package='ros_gz_bridge', executable='parameter_bridge', output='screen',
         parameters=[{'config_file': bridge_config, 'use_sim_time': True}],
     )
 
-    return LaunchDescription([set_resource, gz_sim, rsp, spawn, bridge])
+    def spawner(name):
+        return Node(package='controller_manager', executable='spawner',
+                    arguments=[name, '--controller-manager-timeout', '120'],
+                    output='screen')
+
+    # give gz_ros2_control time to bring up the controller_manager, then spawn controllers
+    delayed_controllers = TimerAction(period=6.0, actions=[
+        spawner('joint_state_broadcaster'),
+        spawner('arm_controller'),
+        spawner('gripper_controller'),
+    ])
+
+    return LaunchDescription([set_resource, gz_sim, rsp, spawn, bridge, delayed_controllers])

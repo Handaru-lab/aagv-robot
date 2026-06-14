@@ -1,13 +1,21 @@
 <?xml version="1.0"?>
 <robot name="aagv" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- ===== tunable params ===== -->
+  <xacro:arg name="use_sim" default="true"/>
+
   <xacro:property name="arm_mount_z" value="0.25"/>
-  <!-- camera pose on link5 (eye-in-hand) — LOCKED -->
   <xacro:property name="cam_xyz" value="0.072 0.0 0.04"/>
   <xacro:property name="cam_rpy" value="0.0 0.0 0.0"/>
 
-  <!-- ===== AGV base (placeholder box) ===== -->
+  <!-- world anchor: a link named 'world' is treated as fixed by Gazebo, so the model stays put -->
+  <link name="world"/>
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- AGV base -->
   <link name="base_link">
     <visual>
       <origin xyz="0 0 0.1" rpy="0 0 0"/>
@@ -20,7 +28,7 @@
     </collision>
   </link>
 
-  <!-- ===== arm: include macro only, mount link1 on the AGV ===== -->
+  <!-- arm geometry -->
   <xacro:include filename="$(find open_manipulator_description)/urdf/open_manipulator_x/open_manipulator_x_arm.urdf.xacro"/>
   <joint name="arm_mount_joint" type="fixed">
     <origin xyz="0 0 ${arm_mount_z}" rpy="0 0 0"/>
@@ -29,13 +37,25 @@
   </joint>
   <xacro:open_manipulator_x prefix=""/>
 
-  <!-- ===== RealSense D435i, eye-in-hand on link5 ===== -->
+  <!-- gazebo + ros2_control machinery (reused from open_manipulator) -->
+  <xacro:include filename="$(find open_manipulator_description)/gazebo/open_manipulator_x.gazebo.xacro"/>
+  <xacro:include filename="$(find open_manipulator_description)/ros2_control/open_manipulator_x_position.ros2_control.xacro"/>
+  <xacro:open_manipulator_x_gazebo prefix=""/>
+  <xacro:open_manipulator_x_system
+    name="OpenManipulatorXSystem" prefix=""
+    use_sim="$(arg use_sim)" use_mock_hardware="false"
+    mock_sensor_commands="false" port_name="/dev/ttyUSB0"/>
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find open_manipulator_bringup)/config/open_manipulator_x/hardware_controller_manager.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+  <!-- RealSense D435i, eye-in-hand on link5 -->
   <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
   <xacro:sensor_d435i parent="link5" name="camera" use_nominal_extrinsics="true">
     <origin xyz="${cam_xyz}" rpy="${cam_rpy}"/>
   </xacro:sensor_d435i>
-
-  <!-- ===== Gazebo: D435i as RGBD sensor on camera_link ===== -->
   <gazebo reference="camera_link">
     <sensor name="d435i" type="rgbd_camera">
       <update_rate>30</update_rate>
@@ -48,12 +68,6 @@
         <clip><near>0.1</near><far>8.0</far></clip>
       </camera>
     </sensor>
-  </gazebo>
-
-  <!-- ===== Gazebo: publish joint states so robot_state_publisher can complete the TF tree ===== -->
-  <gazebo>
-    <plugin filename="gz-sim-joint-state-publisher-system"
-            name="gz::sim::systems::JointStatePublisher"/>
   </gazebo>
 
 </robot>
