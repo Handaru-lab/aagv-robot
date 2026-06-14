@@ -70,4 +70,16 @@
     </sensor>
   </gazebo>
 
+  <!-- on-demand grasp: attach/detach the ball to the gripper via gz topics -->
+  <gazebo>
+    <plugin filename="gz-sim-detachable-joint-system" name="gz::sim::systems::DetachableJoint">
+      <parent_link>end_effector_link</parent_link>
+      <child_model>ball_orange</child_model>
+      <child_link>link</child_link>
+      <suppress_initial_attach>true</suppress_initial_attach>
+      <attach_topic>/grasp/attach</attach_topic>
+      <detach_topic>/grasp/detach</detach_topic>
+    </plugin>
+  </gazebo>
+
 </robot>
