@@ -22,10 +22,6 @@
       <geometry><box size="0.6 0.4 0.2"/></geometry>
       <material name="agv_gray"><color rgba="0.3 0.3 0.3 1.0"/></material>
     </visual>
-    <collision>
-      <origin xyz="0 0 0.1" rpy="0 0 0"/>
-      <geometry><box size="0.6 0.4 0.2"/></geometry>
-    </collision>
   </link>
 
   <!-- arm geometry -->
