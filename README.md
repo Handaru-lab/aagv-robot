@@ -1,4 +1,4 @@
-# AAGV Robot
+# Agriculture AGV Robot
 
 Agriculture AGV — an autonomous ground vehicle integrating a **Reeman AGV** base with an
 **OpenManipulator-X** robotic arm and **Intel RealSense D435i** camera for vision-guided
