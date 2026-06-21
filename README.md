@@ -99,20 +99,19 @@ ros2 launch open_manipulator_bringup open_manipulator_x.launch.py port_name:=/de
 ros2 launch realsense2_camera rs_launch.py \
   depth_module.depth_profile:=640x480x15 \
   rgb_camera.color_profile:=640x480x15 \
-  enable_color:=true enable_depth:=true pointcloud.enable:=false
+  enable_color:=true enable_depth:=true pointcloud.enable:=true
 
 # 5. TF bridge (link5 → camera_link)
-ros2 run tf2_ros static_transform_publisher \
-  --x 0.072 --y 0.0 --z 0.04 --roll 0 --pitch 0 --yaw 0 \
-  --frame-id link5 --child-frame-id camera_link
+ros2 run tf2_ros static_transform_publisher --x 0.072 --y 0.0 --z 0.04 --roll 0 --pitch 0 --yaw 0 --frame-id link5 --child-frame-id camera_link
 
 # 6. MoveIt (use OMX standard config for hardware without AGV base)
-ros2 launch open_manipulator_moveit_config open_manipulator_x_moveit.launch.py use_sim:=false
+ros2 launch aagv_moveit_config move_group.launch.py
+
+# 7. Rviz
+rviz2
 
 # 7. Object detector + pick
-python3 scripts/hardware/dark_object_detector.py
-python3 scripts/hardware/hw_pick.py
-```
+python3 ball_tracker.py
 
 ### Simulation
 
