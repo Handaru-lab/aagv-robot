@@ -125,7 +125,3 @@ ros2 launch aagv_perception perception.launch.py
 # Terminal 3: MoveIt
 ros2 launch open_manipulator_moveit_config open_manipulator_x_moveit.launch.py use_sim:=true
 ```
-
-## Author
-
-Handaru Rizqi W. — Teknologi Rekayasa Otomasi, Vokasi ITS
